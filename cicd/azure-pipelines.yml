@@ -19,7 +19,7 @@ trigger:
 
 # Adjust variables, set a dummy product name, environment and a name of the subscription
 variables:
-   ProductName: "azdo-datafactory"
+   ProductName: "insidero-datafactory"
    Environment: "stg"
    Subscription: "80ebef40-3f7f-4972-b829-72efcd567faf"
 
