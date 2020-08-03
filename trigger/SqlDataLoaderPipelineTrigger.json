@@ -1,0 +1,26 @@
+{
+	"name": "SqlDataLoaderPipelineTrigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "SqlDataLoader",
+				"type": "PipelineReference"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Minute",
+			"interval": 15,
+			"startTime": "2020-07-30 11:08:46Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"count": 3,
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}

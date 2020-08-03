@@ -1,0 +1,20 @@
+{
+	"name": "SqlOperationalSink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CovidDefinitiveHC/Sinks"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "definitive_HC",
+			"table": "operationaldhc"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

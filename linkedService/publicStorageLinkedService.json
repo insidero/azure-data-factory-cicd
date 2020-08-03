@@ -1,0 +1,15 @@
+{
+	"name": "publicStorageLinkedService",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"sasUri": {
+				"type": "SecureString",
+				"value": "**********"
+			},
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRFTU9DVVNUT01FUkFERjdTRlhHRVJSWVE0RDZfZjVjYTZmZDUtNjIxZi00YmQzLWJlYWEtNmZkMGEwZjM4MjM2Ig0KfQ=="
+		}
+	}
+}

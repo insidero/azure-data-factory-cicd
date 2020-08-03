@@ -1,0 +1,27 @@
+{
+	"name": "ArmtemplateTestDatasetOutSource",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "customerStorageLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "CovidDefinitiveHC/Sources"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "outputt",
+				"container": "staging"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,31 @@
+{
+	"name": "LoadIntoOperationalTable_SQL",
+	"properties": {
+		"folder": {
+			"name": "CovidDefinitiveHC"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SqlDbStagingSource",
+						"type": "DatasetReference"
+					},
+					"name": "sourceSqlDbStaging"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "SqlOperationalSink",
+						"type": "DatasetReference"
+					},
+					"name": "SqlOperationalSink"
+				}
+			],
+			"transformations": [],
+			"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceSqlDbStaging\nsourceSqlDbStaging sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SqlOperationalSink"
+		}
+	}
+}
