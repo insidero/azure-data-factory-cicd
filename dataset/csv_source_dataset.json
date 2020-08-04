@@ -1,0 +1,116 @@
+{
+	"name": "csv_source_dataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "customerStorageLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"directory": {
+				"type": "string"
+			},
+			"file": {
+				"type": "string"
+			},
+			"container": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Sources"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().file",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().directory",
+					"type": "Expression"
+				},
+				"container": {
+					"value": "@dataset().container",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Row_ID",
+				"type": "String"
+			},
+			{
+				"name": "Accurate_Episode_Date",
+				"type": "String"
+			},
+			{
+				"name": "Case_Reported_Date",
+				"type": "String"
+			},
+			{
+				"name": "Test_Reported_Date",
+				"type": "String"
+			},
+			{
+				"name": "Specimen_Date",
+				"type": "String"
+			},
+			{
+				"name": "Age_Group",
+				"type": "String"
+			},
+			{
+				"name": "Client_Gender",
+				"type": "String"
+			},
+			{
+				"name": "Case_AcquisitionInfo",
+				"type": "String"
+			},
+			{
+				"name": "Outcome1",
+				"type": "String"
+			},
+			{
+				"name": "Outbreak_Related",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_Address",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_City",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_Postal_Code",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_Website",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_Latitude",
+				"type": "String"
+			},
+			{
+				"name": "Reporting_PHU_Longitude",
+				"type": "String"
+			}
+		]
+	}
+}

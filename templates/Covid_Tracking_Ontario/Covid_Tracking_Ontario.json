@@ -1,0 +1,1211 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"covid_tracking_ontario_rest_linkedservice": {
+			"type": "string"
+		},
+		"covid_tracking_ontario_blobstorage_linkedservice": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Covid_Tracking_Ontario')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "To Raw Partition",
+						"description": "abc",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": {
+										"value": "$.result._links.next",
+										"type": "Expression"
+									},
+									"Headers['Break_API_Call_When_All_Records_Received']": {
+										"value": "$.result.records[0].Row_ID",
+										"type": "Expression"
+									}
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".csv"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['Row_ID']"
+										},
+										"sink": {
+											"name": "Row_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Accurate_Episode_Date']"
+										},
+										"sink": {
+											"name": "Accurate_Episode_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Case_Reported_Date']"
+										},
+										"sink": {
+											"name": "Case_Reported_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Test_Reported_Date']"
+										},
+										"sink": {
+											"name": "Test_Reported_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Specimen_Date']"
+										},
+										"sink": {
+											"name": "Specimen_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Age_Group']"
+										},
+										"sink": {
+											"name": "Age_Group",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Client_Gender']"
+										},
+										"sink": {
+											"name": "Client_Gender",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Case_AcquisitionInfo']"
+										},
+										"sink": {
+											"name": "Case_AcquisitionInfo",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Outcome1']"
+										},
+										"sink": {
+											"name": "Outcome1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Outbreak_Related']"
+										},
+										"sink": {
+											"name": "Outbreak_Related",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU']"
+										},
+										"sink": {
+											"name": "Reporting_PHU",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Address']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Address",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_City']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Postal_Code']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Postal_Code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Website']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Website",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Latitude']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Latitude",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Longitude']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Longitude",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['result']['records']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "rest_source_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"relativeUrl": {
+										"value": "@pipeline().parameters.sourceRelativeUrl",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "csv_source_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"directory": {
+										"value": "@concat(pipeline().parameters.rawBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@concat(pipeline().parameters.sourceFilename,'_',pipeline().RunId,'.csv')",
+										"type": "Expression"
+									},
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "To Raw Overwrite",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"AbsoluteUrl": {
+										"value": "$.result._links.next",
+										"type": "Expression"
+									},
+									"Headers['Break_API_Call_When_All_Records_Received']": {
+										"value": "$.result.records[0].Row_ID",
+										"type": "Expression"
+									}
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".csv"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['Row_ID']"
+										},
+										"sink": {
+											"name": "Row_ID",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Accurate_Episode_Date']"
+										},
+										"sink": {
+											"name": "Accurate_Episode_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Case_Reported_Date']"
+										},
+										"sink": {
+											"name": "Case_Reported_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Test_Reported_Date']"
+										},
+										"sink": {
+											"name": "Test_Reported_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Specimen_Date']"
+										},
+										"sink": {
+											"name": "Specimen_Date",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Age_Group']"
+										},
+										"sink": {
+											"name": "Age_Group",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Client_Gender']"
+										},
+										"sink": {
+											"name": "Client_Gender",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Case_AcquisitionInfo']"
+										},
+										"sink": {
+											"name": "Case_AcquisitionInfo",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Outcome1']"
+										},
+										"sink": {
+											"name": "Outcome1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Outbreak_Related']"
+										},
+										"sink": {
+											"name": "Outbreak_Related",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU']"
+										},
+										"sink": {
+											"name": "Reporting_PHU",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Address']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Address",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_City']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_City",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Postal_Code']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Postal_Code",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Website']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Website",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Latitude']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Latitude",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Reporting_PHU_Longitude']"
+										},
+										"sink": {
+											"name": "Reporting_PHU_Longitude",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['result']['records']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "rest_source_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"relativeUrl": {
+										"value": "@pipeline().parameters.sourceRelativeUrl",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "csv_source_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"directory": {
+										"value": "@concat(pipeline().parameters.rawBlobDirectory, '/latest')",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@pipeline().parameters.sourceFilename",
+										"type": "Expression"
+									},
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Reformat Columns",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "To Raw Partition",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "To Raw Overwrite",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "transformations",
+								"type": "DataFlowReference",
+								"parameters": {
+									"filename": {
+										"value": "'@{pipeline().parameters.filename}'",
+										"type": "Expression"
+									},
+									"runid": {
+										"value": "'@{pipeline().RunId}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"sourceCSV": {
+										"directory": {
+											"value": "@concat(pipeline().parameters.rawBlobDirectory, '/latest')",
+											"type": "Expression"
+										},
+										"file": {
+											"value": "@pipeline().parameters.sourceFilename",
+											"type": "Expression"
+										},
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										}
+									},
+									"SinkLatestCSV": {
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+											"type": "Expression"
+										},
+										"file": {
+											"value": "@concat(pipeline().parameters.filename,'.csv')",
+											"type": "Expression"
+										},
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										}
+									},
+									"sinkLatestJsonl": {
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+											"type": "Expression"
+										},
+										"file": {
+											"value": "@concat(pipeline().parameters.filename,'.jsonl')",
+											"type": "Expression"
+										}
+									},
+									"SinkCSV": {
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+											"type": "Expression"
+										},
+										"file": "specified in data flow",
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										}
+									},
+									"sinkJsonl": {
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+											"type": "Expression"
+										},
+										"file": "specified in data flow"
+									},
+									"sinkLatestParquet": {
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+											"type": "Expression"
+										},
+										"file": "specified in data flow"
+									},
+									"sinkParquet": {
+										"container": {
+											"value": "@pipeline().parameters.blobContainer",
+											"type": "Expression"
+										},
+										"directory": {
+											"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+											"type": "Expression"
+										},
+										"file": "specified in data flow"
+									}
+								}
+							},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
+						}
+					},
+					{
+						"name": "JSONL to JSON LATEST",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Reformat Columns",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"quoteAllText": true,
+									"filePattern": "arrayOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									},
+									"directory": {
+										"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@concat(pipeline().parameters.filename,'.jsonl')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									},
+									"directory": {
+										"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@concat(pipeline().parameters.filename,'.json')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "JSONL to JSON",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Reformat Columns",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"quoteAllText": true,
+									"filePattern": "arrayOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									},
+									"directory": {
+										"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/latest')",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@concat(pipeline().parameters.filename,'.jsonl')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference",
+								"parameters": {
+									"container": {
+										"value": "@pipeline().parameters.blobContainer",
+										"type": "Expression"
+									},
+									"directory": {
+										"value": "@concat(pipeline().parameters.curatedBlobDirectory,'/',formatdatetime(utcnow(),'yyyy/MM/dd'))",
+										"type": "Expression"
+									},
+									"file": {
+										"value": "@concat(pipeline().parameters.filename,'_',pipeline().RunId,'.json')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"parameters": {
+					"sourceFilename": {
+						"type": "string",
+						"defaultValue": "conposcovidloc_raw.csv"
+					},
+					"sourceRelativeUrl": {
+						"type": "string",
+						"defaultValue": "/api/3/action/datastore_search?resource_id=455fd63b-603d-4608-8216-7d8647f43350"
+					},
+					"blobContainer": {
+						"type": "string",
+						"defaultValue": "public"
+					},
+					"rawBlobDirectory": {
+						"type": "string",
+						"defaultValue": "raw/covid-19/covid_tracking"
+					},
+					"curatedBlobDirectory": {
+						"type": "string",
+						"defaultValue": "curated/covid-19/covid_tracking"
+					},
+					"filename": {
+						"type": "string",
+						"defaultValue": "covid_tracking"
+					}
+				},
+				"folder": {
+					"name": "Case Data"
+				},
+				"annotations": [
+					"covidtracking"
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/rest_source_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/csv_source_dataset')]",
+				"[concat(variables('factoryId'), '/dataflows/transformations')]",
+				"[concat(variables('factoryId'), '/datasets/json_sink_dataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/rest_source_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('covid_tracking_ontario_rest_linkedservice')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"relativeUrl": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Sources"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().relativeUrl",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csv_source_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('covid_tracking_ontario_blobstorage_linkedservice')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					},
+					"container": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Sources"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Row_ID",
+						"type": "String"
+					},
+					{
+						"name": "Accurate_Episode_Date",
+						"type": "String"
+					},
+					{
+						"name": "Case_Reported_Date",
+						"type": "String"
+					},
+					{
+						"name": "Test_Reported_Date",
+						"type": "String"
+					},
+					{
+						"name": "Specimen_Date",
+						"type": "String"
+					},
+					{
+						"name": "Age_Group",
+						"type": "String"
+					},
+					{
+						"name": "Client_Gender",
+						"type": "String"
+					},
+					{
+						"name": "Case_AcquisitionInfo",
+						"type": "String"
+					},
+					{
+						"name": "Outcome1",
+						"type": "String"
+					},
+					{
+						"name": "Outbreak_Related",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_Address",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_City",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_Postal_Code",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_Website",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_Latitude",
+						"type": "String"
+					},
+					{
+						"name": "Reporting_PHU_Longitude",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/transformations')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Update ISO 3166-2 code",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "csv_source_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "sourceCSV"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "csv_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "SinkLatestCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "sinkLatestJsonl"
+						},
+						{
+							"dataset": {
+								"referenceName": "csv_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "SinkCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "json_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "sinkJsonl"
+						},
+						{
+							"dataset": {
+								"referenceName": "parquet_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "sinkLatestParquet"
+						},
+						{
+							"dataset": {
+								"referenceName": "parquet_sink_dataset",
+								"type": "DatasetReference"
+							},
+							"name": "sinkParquet"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DropLineageColumnAndRearrangeColumns"
+						},
+						{
+							"name": "LoadDate"
+						},
+						{
+							"name": "ModifyHeadingStyle"
+						},
+						{
+							"name": "RoundOffLatLong"
+						},
+						{
+							"name": "DaysDifferenceBetweenDates"
+						}
+					],
+					"script": "parameters{\n\tfilename as string ('covid_tracking'),\n\trunid as string ('runtime_guid')\n}\nsource(output(\n\t\tRow_ID as string,\n\t\tAccurate_Episode_Date as string,\n\t\tCase_Reported_Date as string,\n\t\tTest_Reported_Date as string,\n\t\tSpecimen_Date as string,\n\t\tAge_Group as string,\n\t\tClient_Gender as string,\n\t\tCase_AcquisitionInfo as string,\n\t\tOutcome1 as string,\n\t\tOutbreak_Related as string,\n\t\tReporting_PHU as string,\n\t\tReporting_PHU_Address as string,\n\t\tReporting_PHU_City as string,\n\t\tReporting_PHU_Postal_Code as string,\n\t\tReporting_PHU_Website as string,\n\t\tReporting_PHU_Latitude as string,\n\t\tReporting_PHU_Longitude as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'lineage') ~> sourceCSV\nDaysDifferenceBetweenDates select(mapColumn(\n\t\tRow_Id,\n\t\tLoad_Date,\n\t\tLoad_Time,\n\t\tAccurate_Episode_Date,\n\t\tCase_Reported_Date,\n\t\tDiff_AccurateEpisode_CaseReported,\n\t\tTest_Reported_Date,\n\t\tSpecimen_Date,\n\t\tDiff_TestReported_SpecimenDate,\n\t\tAge_Group,\n\t\tClient_Gender,\n\t\tCase_Acquisitioninfo,\n\t\tOutcome1,\n\t\tOutbreak_Related,\n\t\tReporting_Phu,\n\t\tReporting_Phu_Address,\n\t\tReporting_Phu_City,\n\t\tReporting_Phu_Postal_Code,\n\t\tReporting_Phu_Website,\n\t\tReporting_Phu_Latitude,\n\t\tReporting_Phu_Longitude\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropLineageColumnAndRearrangeColumns\nsourceCSV derive(load_time = substring(toString(currentTimestamp()), 12,25),\n\t\tload_date = currentDate(),\n\t\tAccurate_Episode_Date = toDate(Accurate_Episode_Date),\n\t\tCase_Reported_Date = toDate(Case_Reported_Date),\n\t\tTest_Reported_Date = toDate(Test_Reported_Date),\n\t\tSpecimen_Date = toDate(Specimen_Date)) ~> LoadDate\nLoadDate select(mapColumn(\n\t\teach(patternMatch(`.*`),\n\t\t\tregexReplace(initCap(regexReplace($$,'_',' ')),' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ModifyHeadingStyle\nModifyHeadingStyle derive(Reporting_Phu_Latitude = round(toDouble(Reporting_Phu_Latitude), 3),\n\t\tReporting_Phu_Longitude = round(toDouble(Reporting_Phu_Longitude), 3)) ~> RoundOffLatLong\nRoundOffLatLong derive(Diff_AccurateEpisode_CaseReported = minus(Case_Reported_Date, Accurate_Episode_Date),\n\t\tDiff_TestReported_SpecimenDate = minus(Test_Reported_Date, Specimen_Date)) ~> DaysDifferenceBetweenDates\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkLatestCSV\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.jsonl'))],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestJsonl\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkCSV\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.jsonl'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkJsonl\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename, '.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestParquet\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkParquet"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/csv_source_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/csv_sink_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/json_sink_dataset')]",
+				"[concat(variables('factoryId'), '/datasets/parquet_sink_dataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/json_sink_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('covid_tracking_ontario_blobstorage_linkedservice')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Parameterized"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@dataset().file",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csv_sink_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('covid_tracking_ontario_blobstorage_linkedservice')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"directory": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					},
+					"container": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Parameterized"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/parquet_sink_dataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "[parameters('covid_tracking_ontario_blobstorage_linkedservice')]",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					},
+					"file": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Parameterized"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"container": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		}
+	]
+}
