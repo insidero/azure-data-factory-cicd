@@ -15,9 +15,17 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'customerStorageLinkedService'"
 		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "url.com"
+		},
 		"publicStorageLinkedService_sasUri": {
 			"type": "secureString",
 			"metadata": "Secure string for 'sasUri' of 'publicStorageLinkedService'"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "acb.com"
 		},
 		"containerUri": {
 			"type": "string",
@@ -52,12 +60,38 @@
 					"customerStorageLinkedService_connectionString": {
 						"value": "[parameters('customerStorageLinkedService_connectionString')]"
 					},
+					"HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
+					},
 					"publicStorageLinkedService_sasUri": {
 						"value": "[parameters('publicStorageLinkedService_sasUri')]"
+					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ArmTemplate_0')]"
+			]
 		}
 	]
 }
