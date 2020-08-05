@@ -11,14 +11,11 @@
 		"customerStorageLinkedService_connectionString": {
 			"value": ""
 		},
-		"HttpServer1_properties_typeProperties_url": {
-			"value": "url.com"
-		},
 		"publicStorageLinkedService_sasUri": {
 			"value": ""
 		},
-		"RestService1_properties_typeProperties_url": {
-			"value": "acb.com"
+		"RestServiceurl_properties_typeProperties_url": {
+			"value": "sds.com"
 		},
 		"containerUri": {
 			"value": ""

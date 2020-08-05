@@ -15,17 +15,13 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'customerStorageLinkedService'"
 		},
-		"HttpServer1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "url.com"
-		},
 		"publicStorageLinkedService_sasUri": {
 			"type": "secureString",
 			"metadata": "Secure string for 'sasUri' of 'publicStorageLinkedService'"
 		},
-		"RestService1_properties_typeProperties_url": {
+		"RestServiceurl_properties_typeProperties_url": {
 			"type": "string",
-			"defaultValue": "acb.com"
+			"defaultValue": "sds.com"
 		},
 		"containerUri": {
 			"type": "string",
@@ -60,14 +56,11 @@
 					"customerStorageLinkedService_connectionString": {
 						"value": "[parameters('customerStorageLinkedService_connectionString')]"
 					},
-					"HttpServer1_properties_typeProperties_url": {
-						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
-					},
 					"publicStorageLinkedService_sasUri": {
 						"value": "[parameters('publicStorageLinkedService_sasUri')]"
 					},
-					"RestService1_properties_typeProperties_url": {
-						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					"RestServiceurl_properties_typeProperties_url": {
+						"value": "[parameters('RestServiceurl_properties_typeProperties_url')]"
 					}
 				}
 			},

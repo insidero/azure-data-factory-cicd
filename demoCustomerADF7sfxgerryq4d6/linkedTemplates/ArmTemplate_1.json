@@ -13,325 +13,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/LoadIntoStagingTable_SQL')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"folder": {
-					"name": "CovidDefinitiveHC"
-				},
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "ArmtemplateTestDatasetOutSource",
-								"type": "DatasetReference"
-							},
-							"name": "SourceCSV"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "SqlDbStagingSink",
-								"type": "DatasetReference"
-							},
-							"name": "SQLStagingSink"
-						}
-					],
-					"transformations": [
-						{
-							"name": "CleanData"
-						}
-					],
-					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'filename',\n\tinferDriftedColumnTypes: true) ~> SourceCSV\nSourceCSV derive(each(match(type=='string'), $$ = trim(toString($$))),\n\t\teach(match(type=='double'), $$ = round(toDouble($$),3)),\n\t\teach(match(type=='short'), $$ = toShort($$)),\n\t\teach(match(type=='integer'), $$ = toInteger($$)),\n\t\teach(match(type=='decimal'), $$ = toDecimal($$))) ~> CleanData\nCleanData sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SQLStagingSink"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/transformations')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Update ISO 3166-2 code",
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "csv_source_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "sourceCSV"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "csv_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "SinkLatestCSV"
-						},
-						{
-							"dataset": {
-								"referenceName": "json_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "sinkLatestJsonl"
-						},
-						{
-							"dataset": {
-								"referenceName": "csv_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "SinkCSV"
-						},
-						{
-							"dataset": {
-								"referenceName": "json_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "sinkJsonl"
-						},
-						{
-							"dataset": {
-								"referenceName": "parquet_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "sinkLatestParquet"
-						},
-						{
-							"dataset": {
-								"referenceName": "parquet_sink_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "sinkParquet"
-						}
-					],
-					"transformations": [
-						{
-							"name": "DropLineageColumnAndRearrangeColumns"
-						},
-						{
-							"name": "LoadDate"
-						},
-						{
-							"name": "ModifyHeadingStyle"
-						},
-						{
-							"name": "RoundOffLatLong"
-						},
-						{
-							"name": "DaysDifferenceBetweenDates"
-						}
-					],
-					"script": "parameters{\n\tfilename as string ('covid_tracking'),\n\trunid as string ('runtime_guid')\n}\nsource(output(\n\t\tRow_ID as string,\n\t\tAccurate_Episode_Date as string,\n\t\tCase_Reported_Date as string,\n\t\tTest_Reported_Date as string,\n\t\tSpecimen_Date as string,\n\t\tAge_Group as string,\n\t\tClient_Gender as string,\n\t\tCase_AcquisitionInfo as string,\n\t\tOutcome1 as string,\n\t\tOutbreak_Related as string,\n\t\tReporting_PHU as string,\n\t\tReporting_PHU_Address as string,\n\t\tReporting_PHU_City as string,\n\t\tReporting_PHU_Postal_Code as string,\n\t\tReporting_PHU_Website as string,\n\t\tReporting_PHU_Latitude as string,\n\t\tReporting_PHU_Longitude as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\trowUrlColumn: 'lineage') ~> sourceCSV\nDaysDifferenceBetweenDates select(mapColumn(\n\t\tRow_Id,\n\t\tLoad_Date,\n\t\tLoad_Time,\n\t\tAccurate_Episode_Date,\n\t\tCase_Reported_Date,\n\t\tDiff_AccurateEpisode_CaseReported,\n\t\tTest_Reported_Date,\n\t\tSpecimen_Date,\n\t\tDiff_TestReported_SpecimenDate,\n\t\tAge_Group,\n\t\tClient_Gender,\n\t\tCase_Acquisitioninfo,\n\t\tOutcome1,\n\t\tOutbreak_Related,\n\t\tReporting_Phu,\n\t\tReporting_Phu_Address,\n\t\tReporting_Phu_City,\n\t\tReporting_Phu_Postal_Code,\n\t\tReporting_Phu_Website,\n\t\tReporting_Phu_Latitude,\n\t\tReporting_Phu_Longitude\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropLineageColumnAndRearrangeColumns\nsourceCSV derive(load_time = substring(toString(currentTimestamp()), 12,25),\n\t\tload_date = currentDate(),\n\t\tAccurate_Episode_Date = toDate(Accurate_Episode_Date),\n\t\tCase_Reported_Date = toDate(Case_Reported_Date),\n\t\tTest_Reported_Date = toDate(Test_Reported_Date),\n\t\tSpecimen_Date = toDate(Specimen_Date)) ~> LoadDate\nLoadDate select(mapColumn(\n\t\teach(patternMatch(`.*`),\n\t\t\tregexReplace(initCap(regexReplace($$,'_',' ')),' ','_') = $$)\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> ModifyHeadingStyle\nModifyHeadingStyle derive(Reporting_Phu_Latitude = round(toDouble(Reporting_Phu_Latitude), 3),\n\t\tReporting_Phu_Longitude = round(toDouble(Reporting_Phu_Longitude), 3)) ~> RoundOffLatLong\nRoundOffLatLong derive(Diff_AccurateEpisode_CaseReported = minus(Case_Reported_Date, Accurate_Episode_Date),\n\t\tDiff_TestReported_SpecimenDate = minus(Test_Reported_Date, Specimen_Date)) ~> DaysDifferenceBetweenDates\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkLatestCSV\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename, '.jsonl'))],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestJsonl\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.csv'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SinkCSV\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.jsonl'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkJsonl\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename, '.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkLatestParquet\nDropLineageColumnAndRearrangeColumns sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tformat: 'parquet',\n\tpartitionFileNames:[(concat($filename,'_', $runid,'.parquet'))],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sinkParquet"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SqlDataLoader')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy latest data",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 3,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "BinarySource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "BinaryReadSettings"
-								}
-							},
-							"sink": {
-								"type": "BinarySink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "BinaryCsvSource",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "BinaryCsvSink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "Verify Schema in SQL DB",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "Copy latest data",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "IF NOT EXISTS ( SELECT  * FROM sys.schemas WHERE name = N'definitive_HC') \n\nBEGIN\n\n    EXEC('CREATE SCHEMA [definitive_HC] AUTHORIZATION [dbo]');\n\nselect Count(*) from sys.symmetric_keys;\n\nEND\n\nELSE \n\nBEGIN\n\nselect Count(*) from sys.symmetric_keys;\n\nEND",
-								"queryTimeout": "00:10:00"
-							},
-							"dataset": {
-								"referenceName": "SqlDbStagingSource",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						}
-					},
-					{
-						"name": "LoadIntoStagingTable_SQL",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "Verify Schema in SQL DB",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 3,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "LoadIntoStagingTable_SQL",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"SourceCSV": {},
-									"SQLStagingSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							}
-						}
-					},
-					{
-						"name": "LoadIntoOperationalTable_SQL",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "LoadIntoStagingTable_SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 3,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "LoadIntoOperationalTable_SQL",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"sourceSqlDbStaging": {},
-									"SqlOperationalSink": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							}
-						}
-					},
-					{
-						"name": "Create Views in SQL DB",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "LoadIntoOperationalTable_SQL",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "IF EXISTS ( SELECT  * FROM sys.schemas WHERE name = N'definitive_HC') \n\nBEGIN\nIF NOT EXISTS (select * from sys.views where name = N'dhc_view')\n    EXEC('create view definitive_HC.dhc_view as select State_Name, Num_Staffed_Beds from definitive_HC.operationaldhc;')\nselect Count(*) from sys.symmetric_keys;\n\nEND\n\nELSE \n\nBEGIN\n\nselect Count(*) from sys.symmetric_keys;\n\nEND",
-								"queryTimeout": "00:10:00"
-							},
-							"dataset": {
-								"referenceName": "SqlOperationalSink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						}
-					}
-				],
-				"folder": {
-					"name": "CovidDefinitiveHC"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/LoadIntoStagingTable_SQL')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/Covid_Tracking_Ontario')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1145,9 +826,203 @@
 					"covidtracking"
 				]
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/transformations')]"
-			]
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlDataLoader')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy latest data",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "BinaryCsvSource",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "BinaryCsvSink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Verify Schema in SQL DB",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Copy latest data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "IF NOT EXISTS ( SELECT  * FROM sys.schemas WHERE name = N'definitive_HC') \n\nBEGIN\n\n    EXEC('CREATE SCHEMA [definitive_HC] AUTHORIZATION [dbo]');\n\nselect Count(*) from sys.symmetric_keys;\n\nEND\n\nELSE \n\nBEGIN\n\nselect Count(*) from sys.symmetric_keys;\n\nEND",
+								"queryTimeout": "00:10:00"
+							},
+							"dataset": {
+								"referenceName": "SqlDbStagingSource",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "LoadIntoStagingTable_SQL",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Verify Schema in SQL DB",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "LoadIntoStagingTable_SQL",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceCSV": {},
+									"SQLStagingSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
+						}
+					},
+					{
+						"name": "LoadIntoOperationalTable_SQL",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "LoadIntoStagingTable_SQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 3,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "LoadIntoOperationalTable_SQL",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"sourceSqlDbStaging": {},
+									"SqlOperationalSink": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							}
+						}
+					},
+					{
+						"name": "Create Views in SQL DB",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "LoadIntoOperationalTable_SQL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "IF EXISTS ( SELECT  * FROM sys.schemas WHERE name = N'definitive_HC') \n\nBEGIN\nIF NOT EXISTS (select * from sys.views where name = N'dhc_view')\n    EXEC('create view definitive_HC.dhc_view as select State_Name, Num_Staffed_Beds from definitive_HC.operationaldhc;')\nselect Count(*) from sys.symmetric_keys;\n\nEND\n\nELSE \n\nBEGIN\n\nselect Count(*) from sys.symmetric_keys;\n\nEND",
+								"queryTimeout": "00:10:00"
+							},
+							"dataset": {
+								"referenceName": "SqlOperationalSink",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"folder": {
+					"name": "CovidDefinitiveHC"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/SqlDataLoaderPipelineTrigger')]",
