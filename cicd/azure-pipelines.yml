@@ -89,8 +89,6 @@ steps:
 
 # Step 5: Deploy Azure Data Factory Objects like pipelines, dataflows using ARM templates that ADF generate during each publish event
 
-- checkout: adf_publish
-  path: arm-artifact
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
