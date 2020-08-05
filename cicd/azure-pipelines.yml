@@ -97,8 +97,8 @@ steps:
     resourceGroupName: 'rg-$(ProductName)-$(Environment)'
     location: 'West Europe'
     templateLocation: 'Linked artifact'
-    csmFile: '$(build.artifactstagingdirectory)arm-artifact\demoCustomerADF7sfxgerryq4d6\ARMTemplateForFactory.json'
-    csmParametersFile: '$(build.artifactstagingdirectory)arm-artifact\demoCustomerADF7sfxgerryq4d6\ARMTemplateParametersForFactory.json'
+    csmFile: '$(build.artifactstagingdirectory)\adf_publish\ARMTemplateForFactory.json'
+    csmParametersFile: '$(build.artifactstagingdirectory)\adf_publish\ARMTemplateParametersForFactory.json'
     overrideParameters: '-factoryName "df-$(ProductName)-$(Environment)" -AzureSqlDatabase_connectionString "$(sql-conn-string)" -customerStorageLinkedService_connectionString "$(customer-sa-conn-string)" -publicStorageLinkedService_sasUri "$(public-sa-sas-uri)" -RestServiceurl_properties_typeProperties_url "$(rest-url)"'
     deploymentMode: 'Incremental'
   displayName: Deploy ADF Pipelines
