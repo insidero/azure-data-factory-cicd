@@ -1,6 +1,10 @@
 {
 	"name": "rest_source_dataset",
 	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestServiceurl",
+			"type": "LinkedServiceReference"
+		},
 		"parameters": {
 			"relativeUrl": {
 				"type": "string"
