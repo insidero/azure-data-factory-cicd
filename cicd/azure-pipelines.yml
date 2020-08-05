@@ -19,9 +19,8 @@ trigger:
 
 # Adjust variables, set a dummy product name, environment and a name of the subscription
 variables:
-   ProductName: "insidero-datafactory"
-   Environment: "stg"
-   Subscription: "80ebef40-3f7f-4972-b829-72efcd567faf"
+- group: stg-variables
+
 
 
 # The build agent is based on Windows OS. 
@@ -87,7 +86,11 @@ steps:
   displayName: Deploy ADF Service
   enabled: true
 
+
 # Step 5: Deploy Azure Data Factory Objects like pipelines, dataflows using ARM templates that ADF generate during each publish event
+
+- checkout: adf_publish
+  path: arm-artifact
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
@@ -97,9 +100,9 @@ steps:
     resourceGroupName: 'rg-$(ProductName)-$(Environment)'
     location: 'West Europe'
     templateLocation: 'Linked artifact'
-    csmFile: '$(build.artifactstagingdirectory)\adf_publish\ARMTemplateForFactory.json'
-    csmParametersFile: '$(build.artifactstagingdirectory)\adf_publish\ARMTemplateParametersForFactory.json'
-    overrideParameters: '-factoryName "df-$(ProductName)-$(Environment)"'
+    csmFile: '$(build.artifactstagingdirectory)arm-artifact\demoCustomerADF7sfxgerryq4d6\ARMTemplateForFactory.json'
+    csmParametersFile: '$(build.artifactstagingdirectory)arm-artifact\demoCustomerADF7sfxgerryq4d6\ARMTemplateParametersForFactory.json'
+    overrideParameters: '-factoryName "df-$(ProductName)-$(Environment)" -AzureSqlDatabase_connectionString "$(sql-conn-string)" -customerStorageLinkedService_connectionString "$(customer-sa-conn-string)" -publicStorageLinkedService_sasUri "$(public-sa-sas-uri)" -RestServiceurl_properties_typeProperties_url "$(rest-url)"'
     deploymentMode: 'Incremental'
   displayName: Deploy ADF Pipelines
   enabled: true
