@@ -807,65 +807,6 @@
 								}
 							}
 						]
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ArmtemplateTestDatasetIn",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ArmtemplateTestDatasetOutSink",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
 					}
 				],
 				"parameters": {
@@ -905,9 +846,7 @@
 				"[concat(variables('factoryId'), '/datasets/rest_source_dataset')]",
 				"[concat(variables('factoryId'), '/datasets/csv_source_dataset')]",
 				"[concat(variables('factoryId'), '/dataflows/transformations')]",
-				"[concat(variables('factoryId'), '/datasets/json_sink_dataset')]",
-				"[concat(variables('factoryId'), '/datasets/ArmtemplateTestDatasetIn')]",
-				"[concat(variables('factoryId'), '/datasets/ArmtemplateTestDatasetOutSink')]"
+				"[concat(variables('factoryId'), '/datasets/json_sink_dataset')]"
 			]
 		},
 		{
