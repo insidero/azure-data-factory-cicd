@@ -11,11 +11,11 @@
 		"customerStorageLinkedService_connectionString": {
 			"value": ""
 		},
-		"publicStorageLinkedService_sasUri": {
-			"value": ""
-		},
 		"RestServiceurl_properties_typeProperties_url": {
 			"value": "sds.com"
+		},
+		"publicStorageLinkedService_sasUri": {
+			"value": ""
 		},
 		"containerUri": {
 			"value": ""
