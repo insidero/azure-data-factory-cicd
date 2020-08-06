@@ -3,6 +3,7 @@
 ## Step 1: Connect your Dev Azure Data factory with Github
  
 1. Open Azure Data Factory that you want to use the developement environment.
+![Getting Started](./img.jpg)
 
 2. Click on **Author & Monitor**, this will open the data factory UI's Home.
 
@@ -212,12 +213,23 @@ steps:
 ## Step 3. Setup CI/CD in Azure DevOps for Data factory.
 
 1. Goto Azure portal, search and open 'Azure DevOps' -> 'My Azure DevOps Organizations'.
+![Search Devops](./images/search-azure-devops.png)
+
+![My orgs](./images/My-orgs.png)
 
 2. You can create a new organiztion choose an existing one. 
+![Create new Org](./images/new-org.png)
 
 3. Create a new project, choose *Private Visibility*.
+![new-project](./images/new-project.png)
+![Search Devops](./images/project-visibility.png)
 
-4. Open the project and in the menu and navigate to *Pipelines -> library*.
+
+
+4. Open the project and navigate to **Pipelines -> library**.
+
+![open library](./images/open-library.png)
+
 
 5. Create a new variable group in named 'stg-variables' and create the following variables in that group:-
 
@@ -229,17 +241,23 @@ steps:
 5. rest-url // URL for the 
 6. sql-conn-string // 
 ```
+![create vars](./images/create-vars.png)
 
 6. To create a new pipeline navigate to Pipelines -> Pipelines and click on **New Pipeline**.
+
+![new pipeline](./images/open-pipeline.png)
+
+![new pipeline](./images/new-pipeline.png)
 
 7. Setup Pipeline
 
     - Connect: Select your 'Repository Type 
+      ![new pipeline](./images/connect-github.png)
 
     - Select: Select the repository that you had previously connected the ADF with.
-
+      ![new pipeline](./images/pipeline-select-repo.png)
     - Configure: Select **Existing Azure Pipelines YAML file** 
-
+      ![new pipeline](./images/select-existingyaml.png)
     - Select **adf_publish** branch, and provide **/cicd/azure-pipelines.yml** as the path.
 
     This will load the Azure pipeline yaml.
