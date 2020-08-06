@@ -213,22 +213,22 @@ steps:
 ## Step 3. Setup CI/CD in Azure DevOps for Data factory.
 
 1. Goto Azure portal, search and open 'Azure DevOps' -> 'My Azure DevOps Organizations'.
-<div align=”center”>![Search Devops](./images/search-azure-devops.png)<div>
+![Search Devops](./images/search-azure-devops.png)
 
-<div align=”center”>![My orgs](./images/My-orgs.png)<div>
+![My orgs](./images/My-orgs.png)
 
 2. You can create a new organiztion choose an existing one. 
-<div align=”center”>![Create new Org](./images/new-org.png)<div>
+![Create new Org](./images/new-org.png)
 
 3. Create a new project, choose *Private Visibility*.
-<div align=”center”>![new-project](./images/new-project.png)<div>
-<div align=”center”>![Search Devops](./images/project-visibility.png)<div>
+![new-project](./images/new-project.png)
+![Search Devops](./images/project-visibility.png)
 
 
 
 4. Open the project and navigate to **Pipelines -> library**.
 
-<div align=”center”>![open library](./images/open-library.png)<div>
+![open library](./images/open-library.png)
 
 
 5. Create a new variable group in named 'stg-variables' and create the following variables in that group:-
@@ -241,24 +241,24 @@ steps:
 5. rest-url // URL for the 
 6. sql-conn-string // 
 ```
-<div align=”center”>![create vars](./images/create-vars.png)<div>
+![create vars](./images/create-vars.png)
 
 6. To create a new pipeline navigate to Pipelines -> Pipelines and click on **New Pipeline**.
 
-<div align=”center”>![new pipeline](./images/open-pipeline.png)<div>
+![new pipeline](./images/open-pipeline.png)
 
-<div align=”center”>![new pipeline](./images/new-pipeline.png)<div>
+![new pipeline](./images/new-pipeline.png)
 
 7. Setup Pipeline
 
     - Connect: Select your 'Repository Type 
-      <div align=”center”>![new pipeline](./images/connect-github.png)<div>
+      ![repo type](./images/connect-github.png)
 
     - Select: Select the repository that you had previously connected the ADF with.
-      <div align=”center”>![new pipeline](./images/pipeline-select-repo.png)<div>
+      ![select repo](./images/pipeline-select-repo.png)
 
     - Configure: Select **Existing Azure Pipelines YAML file** 
-      <div align=”center”>![new pipeline](./images/select-existingyaml-options.png)<div>
+      ![select existing yaml](./images/select-existingyaml-options.png)
 
     - Select **adf_publish** branch, and provide **/cicd/azure-pipelines.yml** as the path.
 
@@ -266,8 +266,8 @@ steps:
 
 8. Update the  *azureResourceManagerConnection, subscriptionId* keys for all the tasks shown in the pipeline yaml. Todo this select 'Settings' shown in the top left corner of every task, this will open a visual yaml editor. Update the aforementioed keys by selecting the relevant subcription. Make sure you do this for all the tasks.
 
-      <div align=”center”>![new pipeline](./images/update-subscription.png)<div>
-<div align=”center”>![new pipeline](./images/update-subscription-2.png)<div>
+![update subscription step 4](./images/update-subscription.png)
+![update subscription step 5](./images/update-subscription-2.png)
 
 
 9. Save and run the pipeline.
